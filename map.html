@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Points on Google Map</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{key}}&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Select 5 Points on the Map</h1>
+    <script>
+      let map;
+      let markers = [];
+      const maxPoints = 5;
+
+      function initMap() {
+          map = new google.maps.Map(document.getElementById('map'), {
+              center: { lat: 35.7456871, lng: -5.8243345 },
+              zoom: 12,
+          });
+
+          map.addListener('click', function(event) {
+              if (markers.length < maxPoints) {
+                  addMarker(event.latLng);
+              }
+              if (markers.length === maxPoints) {
+                  document.getElementById('submit-btn').disabled = false;
+              }
+          });
+      }
+
+      function addMarker(location) {
+          const marker = new google.maps.Marker({
+              position: location,
+              map: map,
+          });
+          markers.push(marker);
+          updatePointsInput();
+      }
+
+      function updatePointsInput() {
+          const points = markers.map(marker => ({
+              lat: marker.getPosition().lat(),
+              lng: marker.getPosition().lng(),
+          }));
+          document.getElementById('points').value = JSON.stringify(points);
+      }
+
+      function removeAllMarkers() {
+          markers.forEach(marker => marker.setMap(null));
+          markers = [];
+          updatePointsInput();
+          document.getElementById('submit-btn').disabled = true;
+      }
+    </script>
+  </head>
+  <body>
+    <div id="map" style="height: 500px; width: 100%;"></div>
+    <input type="hidden" id="points" name="points" value="[]">
+    <button id="submit-btn" disabled>Submit</button>
+    <button onclick="removeAllMarkers()">Remove All Points</button>
+  </body>
+</html>
